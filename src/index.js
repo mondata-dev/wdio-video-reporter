@@ -130,16 +130,7 @@ export default class Video extends WdioReporter {
       fs.mkdirsSync(this.recordingPath);
     }
 
-    try {
-      this.screenshotPromises.push(
-        browser.saveScreenshot(filePath).then(() => {
-          helpers.debugLog('- Screenshot!!\n');
-        })
-      );
-    } catch (e) {
-      fs.writeFile(filePath, notAvailableImage, 'base64');
-      helpers.debugLog('- Screenshot not available...\n');
-    }
+    this.saveScreenshot(filePath);
     this.frameNr++;
   }
 
@@ -193,16 +184,7 @@ export default class Video extends WdioReporter {
 
     if (test.state === 'failed' || (test.state === 'passed' && config.saveAllVideos)) {
       const filePath = path.resolve(this.recordingPath, this.frameNr.toString().padStart(4, '0') + '.png');
-      try {
-        this.screenshotPromises.push(
-          browser.saveScreenshot(filePath).then(() => {
-            helpers.debugLog('- Screenshot!!\n');
-          })
-        );
-      } catch (e) {
-        fs.writeFile(filePath, notAvailableImage, 'base64');
-        helpers.debugLog('- Screenshot not available...\n');
-      }
+      this.saveScreenshot(filePath);
 
       helpers.generateVideo.call(this);
     }
@@ -265,6 +247,19 @@ export default class Video extends WdioReporter {
           fs.copySync(videoFilePath, filePath);
         }
       });
+  }
+
+  saveScreenshot(filePath) {
+    this.screenshotPromises.push(
+      Promise.resolve() // by using Promise.resolve this also works if saveScreenshot return undefined because of sync mode
+        .then(() => browser.saveScreenshot(filePath))
+        .then(() => {
+          helpers.debugLog('- Screenshot!!\n');
+        }).catch(e => {
+          fs.writeFile(filePath, notAvailableImage, 'base64');
+          helpers.debugLog('- Screenshot not available...\n');
+        })
+    );
   }
 }
 

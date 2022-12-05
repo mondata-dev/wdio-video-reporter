@@ -86,15 +86,15 @@ export default {
 
       if (hasFailedTests || (allTestsPassed && config.saveAllVideos)) {
         const filePath = path.resolve(this.recordingPath, this.frameNr.toString().padStart(4, '0') + '.png');
-        try {
-          browser.saveScreenshot(filePath);
+        Promise.resolve() // by using Promise.resolve this also works if saveScreenshot return undefined because of sync mode
+        .then(() => browser.saveScreenshot(filePath))
+        .then(() => {
           helpers.debugLog('- Screenshot!!\n');
-        } catch (e) {
+        }).catch(e => {
           fs.writeFile(filePath, notAvailableImage, 'base64');
           helpers.debugLog('- Screenshot not available...\n');
-        }
-
-        helpers.generateVideo.call(this);
+        })
+        .then(() => helpers.generateVideo.call(this));
       }
     }
   },
