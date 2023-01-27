@@ -84,6 +84,9 @@ export default {
       const hasFailedTests = suite.tests.filter(test => test.state === 'failed').length > 0;
       const allTestsPassed = suite.tests.filter(test => test.state === 'failed').length === 0;
 
+      // freeze test suite options for video generation call, because these class variables might already be 
+      // changed before async execution arrives at helpers.generateVideo.call
+      const options = {testname: this.testname, recordingPath: this.recordingPath};
       if (hasFailedTests || (allTestsPassed && config.saveAllVideos)) {
         const filePath = path.resolve(this.recordingPath, this.frameNr.toString().padStart(4, '0') + '.png');
         Promise.resolve() // by using Promise.resolve this also works if saveScreenshot return undefined because of sync mode
@@ -94,7 +97,7 @@ export default {
           fs.writeFile(filePath, notAvailableImage, 'base64');
           helpers.debugLog('- Screenshot not available...\n');
         })
-        .then(() => helpers.generateVideo.call(this, {testname: this.testname, recordingPath: this.recordingPath}));
+        .then(() => helpers.generateVideo.call(this, options));
       }
     }
   },
