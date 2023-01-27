@@ -94,7 +94,7 @@ export default {
           fs.writeFile(filePath, notAvailableImage, 'base64');
           helpers.debugLog('- Screenshot not available...\n');
         })
-        .then(() => helpers.generateVideo.call(this));
+        .then(() => helpers.generateVideo.call(this, {testname: this.testname, recordingPath: this.recordingPath}));
       }
     }
   },

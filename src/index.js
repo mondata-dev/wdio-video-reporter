@@ -186,7 +186,7 @@ export default class Video extends WdioReporter {
       const filePath = path.resolve(this.recordingPath, this.frameNr.toString().padStart(4, '0') + '.png');
       this.saveScreenshot(filePath);
 
-      helpers.generateVideo.call(this);
+      helpers.generateVideo.call(this, {testname: this.testname, recordingPath: this.recordingPath});
     }
   }
 

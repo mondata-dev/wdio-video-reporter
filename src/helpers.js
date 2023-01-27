@@ -52,8 +52,11 @@ export default {
     return filename;
   },
 
-  generateVideo() {
-    const videoPath = path.resolve(config.outputDir, this.testname + '.mp4');
+  generateVideo(options) {
+    options.testname = options.testname || this.testname;
+    options.recordingPath = options.recordingPath || this.recordingPath;
+    
+    const videoPath = path.resolve(config.outputDir, options.testname + '.mp4');
     this.videos.push(videoPath);
 
     //send event to nice-html-reporter
@@ -67,7 +70,7 @@ export default {
     const args = [
       '-y',
       '-r', '10',
-      '-i', `"${this.recordingPath}/%04d.png"`,
+      '-i', `"${options.recordingPath}/%04d.png"`,
       '-vcodec', 'libx264',
       '-crf', '32',
       '-pix_fmt', 'yuv420p',
