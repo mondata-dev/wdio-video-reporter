@@ -140,8 +140,11 @@ var helpers = {
     return filename;
   },
 
-  generateVideo() {
-    const videoPath = path.resolve(config.outputDir, this.testname + '.mp4');
+  generateVideo(options) {
+    options.testname = options.testname || this.testname;
+    options.recordingPath = options.recordingPath || this.recordingPath;
+    
+    const videoPath = path.resolve(config.outputDir, options.testname + '.mp4');
     this.videos.push(videoPath);
 
     //send event to nice-html-reporter
@@ -155,7 +158,7 @@ var helpers = {
     const args = [
       '-y',
       '-r', '10',
-      '-i', `"${this.recordingPath}/%04d.png"`,
+      '-i', `"${options.recordingPath}/%04d.png"`,
       '-vcodec', 'libx264',
       '-crf', '32',
       '-pix_fmt', 'yuv420p',
@@ -411,7 +414,7 @@ var cucumberFramework = {
           fs.writeFile(filePath, notAvailableImage, 'base64');
           helpers.debugLog('- Screenshot not available...\n');
         })
-        .then(() => helpers.generateVideo.call(this));
+        .then(() => helpers.generateVideo.call(this, {testname: this.testname, recordingPath: this.recordingPath}));
       }
     }
   },
@@ -622,7 +625,7 @@ class Video extends WdioReporter {
       const filePath = path.resolve(this.recordingPath, this.frameNr.toString().padStart(4, '0') + '.png');
       this.saveScreenshot(filePath);
 
-      helpers.generateVideo.call(this);
+      helpers.generateVideo.call(this, {testname: this.testname, recordingPath: this.recordingPath});
     }
   }
 
